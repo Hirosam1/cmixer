@@ -71,9 +71,8 @@ int main(int argc, char **argv) {
   printf("Press [return] to exit\n");
   getchar();
   /* Clean up */
-  printf("Cleaning up1...\n");
+  printf("Cleaning up...\n");
   cm_destroy_source(src);
-  printf("Cleaning up2...\n");
   cm_destroy_source(src2);
   printf("Closing SDL...\n");
   SDL_CloseAudioDevice(dev);

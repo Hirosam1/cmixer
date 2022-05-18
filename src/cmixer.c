@@ -385,10 +385,10 @@ void cm_destroy_source(cm_Source *src) {
   if (src->active) {
     cm_Source **s = &cmixer.sources;
     while (*s) {
-      if (*s != src) {
-        *s = src->next;
+      if (*s == src) { 
         break;
       }
+      *s = src->next;
     }
   }
   unlock();
