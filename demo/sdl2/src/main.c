@@ -26,7 +26,7 @@ static void audio_callback(void *udata, Uint8 *stream, int size) {
 int main(int argc, char **argv) {
   SDL_AudioDeviceID dev;
   SDL_AudioSpec fmt, got;
-  cm_Source *src;
+  cm_Source *src, *src2;
 
   /* Init SDL */
   SDL_Init(SDL_INIT_AUDIO);
@@ -56,19 +56,26 @@ int main(int argc, char **argv) {
 
   /* Create source and play */
   src = cm_new_source_from_file("loop.wav");
-  if (!src) {
-    fprintf(stderr, "Error: failed to create source '%s'\n", cm_get_error());
+  src2 = cm_new_source_from_file("testing2.wav");
+
+  if (!src || !src2) {
+    fprintf(stderr, "Error: failed to create source: '%s'\n", cm_get_error());
     exit(EXIT_FAILURE);
   }
   cm_set_loop(src, 1);
-  cm_play(src);
+  cm_set_gain(src2,0.3);
 
+  cm_play(src);
+  cm_play(src2);
   /* Wait for [return] */
   printf("Press [return] to exit\n");
   getchar();
-
   /* Clean up */
+  printf("Cleaning up1...\n");
   cm_destroy_source(src);
+  printf("Cleaning up2...\n");
+  cm_destroy_source(src2);
+  printf("Closing SDL...\n");
   SDL_CloseAudioDevice(dev);
   SDL_Quit();
 
