@@ -133,6 +133,16 @@ static void rewind_source(cm_Source *src) {
   src->nextfill = 0;
 }
 
+static void rewind_source_as_loop(cm_Source* src, int nextfill, int position_fx){
+  cm_Event e;
+  e.type = CM_EVENT_REWIND;
+  e.udata = src->udata;
+  src->handler(&e);
+  src->position = position_fx;
+  src->rewind = 0;
+  src->end = src->length;
+  src->nextfill = nextfill;
+}
 
 static void fill_source_buffer(cm_Source *src, int offset, int length) {
   cm_Event e;
@@ -172,10 +182,8 @@ static void process_source(cm_Source *src, int len) {
 
     /* Handle reaching the end of the playthrough */
     if (frame >= src->end) {
-      /* As streams continiously fill the raw buffer in a loop we simply
-      ** increment the end idx by one length and continue reading from it for
-      ** another play-through */
-      src->end = frame + src->length;
+      /*REwind source according to how much it it was already processed*/
+      rewind_source_as_loop(src,(src->nextfill - src->end) >> FX_BITS,(frame - src->end) >> FX_BITS );
       /* Set state and stop processing if we're not set to loop */
       if (!src->loop) {
         src->state = CM_STATE_STOPPED;
