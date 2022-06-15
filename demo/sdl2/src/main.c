@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
       break;
     case 2:
       printf("Play sound");
+      cm_stop(src);
       cm_play(src);
       break;
     default:
