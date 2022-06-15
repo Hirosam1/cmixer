@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     switch (op)
     {  
     case 1:
-      printf("Exiting!an");
+      printf("Exiting!\n");
       break;
     case 2:
       printf("Play sound\n");
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
       cm_play(src);
       break;
     default:
-      printf("Bad parameter!an");
+      printf("Bad parameter!\n");
       break;
     }
   }
