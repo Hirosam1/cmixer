@@ -26,7 +26,7 @@ static void audio_callback(void *udata, Uint8 *stream, int size) {
 int main(int argc, char **argv) {
   SDL_AudioDeviceID dev;
   SDL_AudioSpec fmt, got;
-  cm_Source *src, *src2;
+  cm_Source *src, *src2,*src3;
 
   /* Init SDL */
   SDL_Init(SDL_INIT_AUDIO);
@@ -55,21 +55,47 @@ int main(int argc, char **argv) {
   SDL_PauseAudioDevice(dev, 0);
 
   /* Create source and play */
-  src = cm_new_source_from_file("loop.wav");
-  src2 = cm_new_source_from_file("testing2.wav");
+  src = cm_new_source_from_file("../sounds/coin.wav");
+  src2 = cm_new_source_from_file("../sounds/drum_loop.wav");
+  src3 = cm_new_source_from_file("../sounds/loop.wav");
 
-  if (!src || !src2) {
+  if (!src || !src2 || !src3) {
     fprintf(stderr, "Error: failed to create source: '%s'\n", cm_get_error());
     exit(EXIT_FAILURE);
   }
-  cm_set_loop(src, 1);
-  cm_set_gain(src2,0.3);
+  cm_set_loop(src2, 1);
+  cm_set_loop(src3, 1);
+  cm_set_gain(src2,0.4);
+  cm_set_pitch(src2,1.0587);
+  cm_set_gain(src,0.8);
 
-  cm_play(src);
+  //cm_play(src);
   cm_play(src2);
+  cm_play(src3);
   /* Wait for [return] */
-  printf("Press [return] to exit\n");
-  getchar();
+  printf("Choose option:\n1-Exit\n2-Play Sound\n");
+  int op = 2;
+  char input;
+  while(op > 1){
+    int n = scanf(" %c", &input);
+    //Consumes newline
+    getchar();
+    printf(">>%c\n",input);
+    op = input - '0';
+    switch (op)
+    {  
+    case 1:
+      printf("Exiting!");
+      break;
+    case 2:
+      printf("Play sound");
+      cm_play(src);
+      break;
+    default:
+      printf("Bad parameter!");
+      break;
+    }
+  }
   /* Clean up */
   printf("Cleaning up...\n");
   cm_destroy_source(src);
