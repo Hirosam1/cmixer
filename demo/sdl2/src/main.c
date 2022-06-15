@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   //cm_play(src);
   cm_play(src2);
   cm_play(src3);
-  /* Wait for [return] */
+  /* Choose option*/
   printf("Choose option:\n1-Exit\n2-Play Sound\n");
   int op = 2;
   char input;

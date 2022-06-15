@@ -585,7 +585,7 @@ static void wav_handler(cm_Event *e) {
     case CM_EVENT_SAMPLES:
       dst = e->buffer;
       len = e->length / 2;
-fill:
+      fill:
       n = MIN(len, s->wav.length - s->idx);
       len -= n;
       if (s->wav.bitdepth == 16 && s->wav.channels == 1) {
