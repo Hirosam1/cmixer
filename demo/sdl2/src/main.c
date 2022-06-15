@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     int n = scanf(" %c", &input);
     //Consumes newline
     getchar();
-    printf(">>%c\n",input);
+    printf(">>%c: ",input);
     op = input - '0';
     switch (op)
     {  
