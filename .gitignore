@@ -1,2 +1,8 @@
 *.out
 .vscode/*
+
+demo/sdl2/include/*
+
+*.dll
+*.exe
+*.a
