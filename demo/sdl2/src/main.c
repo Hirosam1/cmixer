@@ -5,6 +5,7 @@
 
 #include "cmixer.h"
 
+#define CLAMP(val,max,min) (val > max ? max : val < min ? min : val)
 
 static SDL_mutex* audio_mutex;
 
@@ -22,6 +23,9 @@ static void audio_callback(void *udata, Uint8 *stream, int size) {
   cm_process((void*) stream, size / 2);
 }
 
+void PrintOptions(){
+    printf("\n===============\nChoose option:\n1-Exit\n2-Play coin sound\n3-Increase volume\n4-Decrease volume\n");
+}
 
 int main(int argc, char **argv) {
   SDL_AudioDeviceID dev;
@@ -69,33 +73,49 @@ int main(int argc, char **argv) {
   cm_set_pitch(src2,1.0587);
   cm_set_gain(src,0.8);
 
-  //cm_play(src);
+  double master_gain =0.5;
+  cm_set_master_gain(master_gain);
   cm_play(src2);
   cm_play(src3);
+
   /* Choose option*/
-  printf("Choose option:\n1-Exit\n2-Play Sound\n");
+  PrintOptions();
   int op = 2;
   char input;
   while(op > 1){
-    int n = scanf(" %c", &input);
-    //Consumes newline
-    getchar();
-    printf(">>%c: ",input);
-    op = input - '0';
-    switch (op)
-    {  
-    case 1:
-      printf("Exiting!\n");
+      int n = scanf(" %c", &input);
+      //Consumes newline
+      getchar();
+      printf(">>%c: ",input);
+      op = input - '0';
+      switch (op)
+      {  
+      case 1:
+          printf("Exiting!\n");
+          break;
+      case 2:
+          printf("Play coin sound\n");
+          cm_stop(src);
+          cm_play(src);
+          PrintOptions();
       break;
-    case 2:
-      printf("Play sound\n");
-      cm_stop(src);
-      cm_play(src);
-      break;
-    default:
-      printf("Bad parameter!\n");
-      break;
-    }
+      case 3:
+          master_gain+=0.1;
+          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
+          printf("Increasing volume->%f\n",(float)master_gain);
+          PrintOptions();
+          break;
+      case 4:
+          master_gain-=0.1;
+          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
+          printf("Decrease volume->%f\n",(float)master_gain);
+          PrintOptions();
+          break;
+      default:
+          printf("Bad parameter!\n");
+          PrintOptions();
+          break;
+      }
   }
   /* Clean up */
   printf("Cleaning up...\n");
