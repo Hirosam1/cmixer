@@ -6,3 +6,7 @@ demo/sdl2/include/*
 *.dll
 *.exe
 *.a
+*.out
+*.so*
+
+portaudio.h

@@ -5,6 +5,7 @@
 
 #include "cmixer.h"
 
+#define CLAMP(val,max,min) (val > max ? max : val < min ? min : val)
 
 static SDL_mutex* audio_mutex;
 
@@ -22,11 +23,14 @@ static void audio_callback(void *udata, Uint8 *stream, int size) {
   cm_process((void*) stream, size / 2);
 }
 
+void PrintOptions(){
+    printf("\n===============\nChoose option:\n1-Exit\n2-Play coin sound\n3-Increase volume\n4-Decrease volume\n");
+}
 
 int main(int argc, char **argv) {
   SDL_AudioDeviceID dev;
   SDL_AudioSpec fmt, got;
-  cm_Source *src, *src2;
+  cm_Source *src, *src2,*src3;
 
   /* Init SDL */
   SDL_Init(SDL_INIT_AUDIO);
@@ -55,21 +59,64 @@ int main(int argc, char **argv) {
   SDL_PauseAudioDevice(dev, 0);
 
   /* Create source and play */
-  src = cm_new_source_from_file("loop.wav");
-  src2 = cm_new_source_from_file("testing2.wav");
+  src = cm_new_source_from_file("../sounds/coin.wav");
+  src2 = cm_new_source_from_file("../sounds/drum_loop.wav");
+  src3 = cm_new_source_from_file("../sounds/loop.wav");
 
-  if (!src || !src2) {
+  if (!src || !src2 || !src3) {
     fprintf(stderr, "Error: failed to create source: '%s'\n", cm_get_error());
     exit(EXIT_FAILURE);
   }
-  cm_set_loop(src, 1);
-  cm_set_gain(src2,0.3);
+  cm_set_loop(src2, 1);
+  cm_set_loop(src3, 1);
+  cm_set_gain(src2,0.4);
+  cm_set_pitch(src2,1.0587);
+  cm_set_gain(src,0.8);
 
-  cm_play(src);
+  double master_gain =0.5;
+  cm_set_master_gain(master_gain);
   cm_play(src2);
-  /* Wait for [return] */
-  printf("Press [return] to exit\n");
-  getchar();
+  cm_play(src3);
+
+  /* Choose option*/
+  PrintOptions();
+  int op = 2;
+  char input;
+  while(op > 1){
+      int n = scanf(" %c", &input);
+      //Consumes newline
+      getchar();
+      printf(">>%c: ",input);
+      op = input - '0';
+      switch (op)
+      {  
+      case 1:
+          printf("Exiting!\n");
+          break;
+      case 2:
+          printf("Play coin sound\n");
+          cm_stop(src);
+          cm_play(src);
+          PrintOptions();
+      break;
+      case 3:
+          master_gain+=0.1;
+          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
+          printf("Increasing volume->%f\n",(float)master_gain);
+          PrintOptions();
+          break;
+      case 4:
+          master_gain-=0.1;
+          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
+          printf("Decrease volume->%f\n",(float)master_gain);
+          PrintOptions();
+          break;
+      default:
+          printf("Bad parameter!\n");
+          PrintOptions();
+          break;
+      }
+  }
   /* Clean up */
   printf("Cleaning up...\n");
   cm_destroy_source(src);
