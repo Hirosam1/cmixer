@@ -6,7 +6,9 @@
 #include "cmixer.h"
 
 #define CLAMP(val,max,min) (val > max ? max : val < min ? min : val)
+#define VOLUME_STEP 0.05
 
+static double master_gain =0.5;
 static SDL_mutex* audio_mutex;
 
 static void lock_handler(cm_Event *e) {
@@ -24,7 +26,7 @@ static void audio_callback(void *udata, Uint8 *stream, int size) {
 }
 
 void PrintOptions(){
-    printf("\n===============\nChoose option:\n1-Exit\n2-Play coin sound\n3-Increase volume\n4-Decrease volume\n");
+    printf("\n===============\nChoose option:\n0-Exit\n1-Play coin sound\n2-Increase volume\n3-Decrease volume\n4-Pause/Unpause music\n");
 }
 
 int main(int argc, char **argv) {
@@ -73,7 +75,6 @@ int main(int argc, char **argv) {
   cm_set_pitch(src2,1.0587);
   cm_set_gain(src,0.8);
 
-  double master_gain =0.5;
   cm_set_master_gain(master_gain);
   cm_play(src2);
   cm_play(src3);
@@ -82,7 +83,7 @@ int main(int argc, char **argv) {
   PrintOptions();
   int op = 2;
   char input;
-  while(op > 1){
+  while(op > 0){
       int n = scanf(" %c", &input);
       //Consumes newline
       getchar();
@@ -90,25 +91,38 @@ int main(int argc, char **argv) {
       op = input - '0';
       switch (op)
       {  
-      case 1:
+      case 0:
           printf("Exiting!\n");
           break;
-      case 2:
+      case 1:
           printf("Play coin sound\n");
           cm_stop(src);
           cm_play(src);
           PrintOptions();
       break;
+      case 2:
+          master_gain-=VOLUME_STEP;
+          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
+          printf("Decrease volume->%f\n",(float)master_gain);
+          PrintOptions();
+          break;
       case 3:
-          master_gain+=0.1;
+          master_gain+=VOLUME_STEP;
           cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
           printf("Increasing volume->%f\n",(float)master_gain);
           PrintOptions();
           break;
       case 4:
-          master_gain-=0.1;
-          cm_set_master_gain(master_gain = CLAMP(master_gain,1.0,0.0));
-          printf("Decrease volume->%f\n",(float)master_gain);
+          if (cm_get_state(src2) == CM_STATE_PAUSED){
+              cm_play(src2);
+              cm_play(src3);
+              printf("Unpause audio\n");
+          }else{
+              cm_pause(src2);
+              cm_pause(src3);
+              printf("Pause audio\n");
+          }
+          
           PrintOptions();
           break;
       default:
@@ -121,6 +135,7 @@ int main(int argc, char **argv) {
   printf("Cleaning up...\n");
   cm_destroy_source(src);
   cm_destroy_source(src2);
+  cm_destroy_source(src3);
   printf("Closing SDL...\n");
   SDL_CloseAudioDevice(dev);
   SDL_Quit();
