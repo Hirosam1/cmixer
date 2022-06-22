@@ -8,6 +8,5 @@ demo/sdl2/include/*
 *.a
 *.out
 *.so*
-*.a
 
 portaudio.h
